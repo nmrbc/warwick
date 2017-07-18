@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8" />    
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+
+	<link type="text/css" rel="stylesheet" href="resources/style.css">
+	<link rel="icon" type="image/ico" href="resources/favicon.png" />
+
+	<title>Warwick Analytics Technical Test - CSV Processor</title>
+</head>
+
+<body>
+	<h2>Please select your CSV file</h2>
+   	<input id="csvFile" name="file" type="file" accept=".csv" onchange="submitData()"/>
+
+	<h2>File processing results</h2>
+	<p id="tableHolder"></p>
+
+	<script>
+		var fileSelect = document.getElementById('csvFile');
+
+		function submitData() {			
+			// Get the selected file from the input.
+			var file = fileSelect.files[0];
+			var formData = new FormData();
+			formData.append("file", file);
+
+			var xmlhttp = new XMLHttpRequest();
+			xmlhttp.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+ 					var headers = JSON.parse(this.responseText)["headers"];
+ 					var records = JSON.parse(this.responseText)["records"];
+ 					var record;
+					var x=-1, y=-1;
+					
+					// build the table
+					var txt = "<table border='1'>";
+					txt += "<tr id=\"header\">";
+					for (x in headers) {
+						txt += "<th>" + headers[x] + "</th>";
+					}
+					txt += "</tr>";
+					for (x in records) {
+						record = JSON.parse(records[x]);
+						txt += "<tr>";
+						for (y in record) {
+							txt += "<td>" + record[y] + "</td>";
+						}
+						txt += "</tr>";
+					}
+					txt += "</table>";
+					document.getElementById("tableHolder").innerHTML = txt;
+				}
+			};
+			xmlhttp.open("POST", window.location.href + "/csvProcessingService", true);
+			xmlhttp.send(formData);
+		}
+
+	</script>
+
+</body>
+</html>
